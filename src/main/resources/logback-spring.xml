@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+	<include
+		resource="org/springframework/boot/logging/logback/base.xml" />
+	<include
+		resource="org/springframework/boot/logging/logback/defaults.xml" />
+	<appender name="fileInfoLog"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<encoder>
+			<pattern>
+				${FILE_LOG_PATTERN}
+			</pattern>
+		</encoder>
+		<!-- 滚动策略 -->
+		<rollingPolicy
+			class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- 路径 -->
+			<fileNamePattern>/tmp/ZY_blog/info.%d.log
+			</fileNamePattern>
+		</rollingPolicy>
+
+	</appender>
+	<appender name="fileErrorLog"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>ERROR</level>
+
+		</filter>
+		<encoder>
+			<pattern>
+				${FILE_LOG_PATTERN}
+			</pattern>
+		</encoder>
+		<!-- 滚动策略 -->
+		<rollingPolicy
+			class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- 路径 -->
+			<fileNamePattern>/tmp/ZY_blog/error.%d.log
+			</fileNamePattern>
+		</rollingPolicy>
+
+	</appender>
+	<root level="info">
+		<appender-ref ref="CONSOLE" />
+		<appender-ref ref="fileInfoLog" />
+		<appender-ref ref="fileErrorLog" />
+	</root>
+
+</configuration>
