@@ -43,6 +43,12 @@ public class ArticleBean {
 	private String articleContent;
 	
 	/**
+	 * 类型编号
+	 */
+	@Column(name = "type_id")
+	private Integer typeId;
+	
+	/**
 	 * 分类编号
 	 */
 	@Column(name = "classification_id")

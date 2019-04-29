@@ -9,7 +9,8 @@ package com.zhiyu.blog.util;
 public enum ResultCodeEnum {
 	Success(0), 
 	Fail(1), 
-	AuthFail(-1);
+	Exception(-1),
+	AuthFail(-2);
 
 	private final int value;
 
