@@ -13,9 +13,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.querydsl.core.Tuple;
+import com.zhiyu.blog.bean.ArticleBean;
 import com.zhiyu.blog.bean.ArticleClassificationBean;
 import com.zhiyu.blog.bean.ArticleTypeBean;
+import com.zhiyu.blog.bean.QArticleBean;
+import com.zhiyu.blog.bean.QArticleClassificationBean;
 import com.zhiyu.blog.service.ArticleService;
+import com.zhiyu.blog.util.DateFormatUtil;
 import com.zhiyu.blog.util.JSONResultUtil;
 import com.zhiyu.blog.util.ResultCodeEnum;
 
@@ -42,17 +47,62 @@ public class ArticleController {
 	@PostMapping(value = "/article")
 	public JSONObject addArticle(
 			@ApiParam(name = "articleName", value = "文章名称", required = true, example = "1") @RequestParam(required = true) String articleName,
+			@ApiParam(name = "articleSummarize", value = "文章梗概", required = true, example = "1") @RequestParam(required = true) String articleSummarize,
 			@ApiParam(name = "typeId", value = "文章类型编号", required = true, example = "1") @RequestParam(required = true) Integer typeId,
 			@ApiParam(name = "classificationId", value = "文章具体分类编号", required = true, example = "1") @RequestParam(required = true) Integer classificationId,
+			@ApiParam(name = "isOriginal", value = "是否原创（0为转载，1为原创）", required = true, example = "1") @RequestParam(required = true) Integer isOriginal,
 			@ApiParam(name = "article", value = "文章内容", required = true, example = "1") @RequestParam(required = true) String article) {
 		try {
-			articleService.save(articleName, typeId, classificationId, article);
+			articleService.save(articleName, articleSummarize, typeId, classificationId,isOriginal,article);
 			logger.info("存储文章:{}成功！", articleName);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return JSONResultUtil.failResult(ResultCodeEnum.Exception.getValue(), "", e.getMessage());
 		}
 		return JSONResultUtil.successResult(ResultCodeEnum.Success.getValue(), new JSONObject(), new JSONArray());
+	}
+
+	@ApiOperation(value = "分页获取所有文章信息", notes = "全局搜索另做")
+	@GetMapping(value = "/articles")
+	public JSONObject getAllArticleInfo(
+			@ApiParam(name = "typeId", value = "文章类型编号", required = false, example = "1") @RequestParam(required = false) Integer typeId,
+			@ApiParam(name = "classificationId", value = "文章具体分类编号", required = false, example = "1") @RequestParam(required = false) Integer classificationId,
+			@ApiParam(name = "pageIndex", value = "页码", required = true, example = "1", defaultValue = "1") @RequestParam(defaultValue = "1", required = true) Integer pageIndex,
+			@ApiParam(name = "pageSize", value = "页数据条数", required = true, example = "10", defaultValue = "10") @RequestParam(defaultValue = "10", required = true) Integer pageSize) {
+		JSONObject object = new JSONObject();
+		JSONArray array = new JSONArray();
+
+		try {
+			List<Tuple> articles = articleService.findArticlesPaging(typeId, classificationId, pageIndex, pageSize);
+
+			Long count = articleService.findArticlesCount(typeId, classificationId);
+
+			object.put("count", count);
+
+			Iterator<Tuple> iterator = articles.iterator();
+			while (iterator.hasNext()) {
+				Tuple t = iterator.next();
+				JSONObject o = new JSONObject();
+				ArticleBean articleBean = t.get(QArticleBean.articleBean);
+				ArticleClassificationBean articleClassificationBean = t
+						.get(QArticleClassificationBean.articleClassificationBean);
+				o.put("articleId", articleBean.getArticleId());
+				o.put("articleName", articleBean.getArticleName());
+				o.put("isOriginal", articleBean.getIsOriginal());
+				o.put("articleSummarize", articleBean.getArticleSummarize());
+				o.put("classificationId", articleBean.getClassificationId());
+				o.put("classification", articleClassificationBean.getClassification());
+				o.put("datetime", DateFormatUtil.DateFormat(articleBean.getDatetime()));
+				o.put("browseTimes", articleBean.getBrowseTimes());
+				o.put("messageCount", articleBean.getMessageCount());
+				array.add(o);
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return JSONResultUtil.failResult(ResultCodeEnum.Exception.getValue(), "", e.getMessage());
+		}
+		return JSONResultUtil.successResult(ResultCodeEnum.Success.getValue(), object, array);
 	}
 
 	@ApiOperation(value = "获取文章类型")
@@ -86,7 +136,7 @@ public class ArticleController {
 			List<ArticleClassificationBean> articleClassifications = articleService
 					.findAllArticleClassification(typeId);
 			Iterator<ArticleClassificationBean> iterator = articleClassifications.iterator();
-			while(iterator.hasNext()) {
+			while (iterator.hasNext()) {
 				ArticleClassificationBean a = iterator.next();
 				JSONObject object = new JSONObject();
 				object.put("classificationId", a.getId());

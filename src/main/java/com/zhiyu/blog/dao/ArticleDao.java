@@ -9,3 +9,4 @@ public interface ArticleDao
 		extends ExtendedQueryDslJpaRepository<ArticleBean, Long>, JpaSpecificationExecutor<ArticleBean> {
 
 }
+ 

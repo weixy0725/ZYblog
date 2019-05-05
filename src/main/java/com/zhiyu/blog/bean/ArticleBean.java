@@ -1,6 +1,8 @@
 package com.zhiyu.blog.bean;
 
-import java.sql.Timestamp;
+
+
+import java.time.LocalDateTime;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -8,6 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+
 
 import lombok.Data;
 
@@ -37,6 +40,12 @@ public class ArticleBean {
 	private String articleName;
 	
 	/**
+	 * 文章概括
+	 */
+	@Column(name="article_summarize")
+	private String articleSummarize;
+	
+	/**
 	 * 文章内容
 	 */
 	@Column(name = "article_content")
@@ -55,8 +64,25 @@ public class ArticleBean {
 	private Integer classificationId;
 	
 	/**
+	 * 是否原创（0为转载，1为原创）
+	 */
+	@Column(name = "is_original")
+	private Integer isOriginal;
+	/**
 	 * 时间戳
 	 */
-	@Column(name = "timestamp")
-	private Timestamp timestamp;
+	@Column(name = "datetime")
+	private LocalDateTime datetime;
+	
+	/**
+	 * 浏览次数
+	 */
+	@Column(name="browse_times")
+	private  Integer browseTimes;
+	
+	/**
+	 * 留言数量
+	 */
+	@Column(name="message_count")
+	private Integer messageCount;
 }

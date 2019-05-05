@@ -2,6 +2,7 @@ package com.zhiyu.blog.service;
 
 import java.util.List;
 
+import com.querydsl.core.Tuple;
 import com.zhiyu.blog.bean.ArticleClassificationBean;
 import com.zhiyu.blog.bean.ArticleTypeBean;
 
@@ -19,7 +20,7 @@ public interface ArticleService {
 	 * @param classificationId
 	 * @param article
 	 */
-     void save(String articleName,Integer typeId,Integer classificationId,String article);
+     void save(String articleName,String articleSummarize,Integer typeId,Integer classificationId,Integer isOriginal,String article);
      
      /**
       * 获取所有文章类型
@@ -34,4 +35,24 @@ public interface ArticleService {
       * @return
       */
      List<ArticleClassificationBean> findAllArticleClassification(Integer typeId);
+     
+     /**
+      * 分页获取文章内容
+      * 
+      * @param typeId
+      * @param classificationId
+      * @param pageIndex
+      * @param pageSize
+      * @return
+      */
+     List<Tuple> findArticlesPaging(Integer typeId,Integer classificationId,Integer pageIndex,Integer pageSize);
+     
+     /**
+      * 获取文章总数
+      * 
+      * @param typeId
+      * @param classificationId
+      * @return
+      */
+     Long findArticlesCount(Integer typeId,Integer classificationId);
 }
