@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -35,7 +36,8 @@ import io.swagger.annotations.ApiParam;
  * @date 2019年4月29日
  */
 @Api(tags = "文章管理")
-@RestController(value = "/articleManagement")
+@RestController
+@RequestMapping(value = "/articleManagement")
 public class ArticleController {
 
 	@Autowired
