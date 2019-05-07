@@ -141,7 +141,7 @@ public class ArticleController {
 			while (iterator.hasNext()) {
 				ArticleClassificationBean a = iterator.next();
 				JSONObject object = new JSONObject();
-				object.put("classificationId", a.getId());
+				object.put("classificationId", a.getId()+"");
 				object.put("classification", a.getClassification());
 				array.add(object);
 			}
