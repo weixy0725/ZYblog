@@ -16,10 +16,10 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.querydsl.core.Tuple;
 import com.zhiyu.blog.bean.ArticleBean;
-import com.zhiyu.blog.bean.ArticleClassificationBean;
-import com.zhiyu.blog.bean.ArticleTypeBean;
+import com.zhiyu.blog.bean.ClassificationBean;
+import com.zhiyu.blog.bean.TypeBean;
 import com.zhiyu.blog.bean.QArticleBean;
-import com.zhiyu.blog.bean.QArticleClassificationBean;
+import com.zhiyu.blog.bean.QClassificationBean;
 import com.zhiyu.blog.service.ArticleService;
 import com.zhiyu.blog.util.DateFormatUtil;
 import com.zhiyu.blog.util.JSONResultUtil;
@@ -86,14 +86,14 @@ public class ArticleController {
 				Tuple t = iterator.next();
 				JSONObject o = new JSONObject();
 				ArticleBean articleBean = t.get(QArticleBean.articleBean);
-				ArticleClassificationBean articleClassificationBean = t
-						.get(QArticleClassificationBean.articleClassificationBean);
+				ClassificationBean classificationBean = t
+						.get(QClassificationBean.classificationBean);
 				o.put("articleId", articleBean.getArticleId());
 				o.put("articleName", articleBean.getArticleName());
 				o.put("isOriginal", articleBean.getIsOriginal());
 				o.put("articleSummarize", articleBean.getArticleSummarize());
 				o.put("classificationId", articleBean.getClassificationId());
-				o.put("classification", articleClassificationBean.getClassification());
+				o.put("classification", classificationBean.getClassification());
 				o.put("datetime", DateFormatUtil.DateFormat(articleBean.getDatetime()));
 				o.put("browseTimes", articleBean.getBrowseTimes());
 				o.put("messageCount", articleBean.getMessageCount());
@@ -112,10 +112,10 @@ public class ArticleController {
 	public JSONObject getType() {
 		JSONArray array = new JSONArray();
 		try {
-			List<ArticleTypeBean> articleTypes = articleService.findAllArticleType();
-			Iterator<ArticleTypeBean> iterator = articleTypes.iterator();
+			List<TypeBean> articleTypes = articleService.findAllArticleType();
+			Iterator<TypeBean> iterator = articleTypes.iterator();
 			while (iterator.hasNext()) {
-				ArticleTypeBean a = iterator.next();
+				TypeBean a = iterator.next();
 				JSONObject object = new JSONObject();
 				object.put("typeId", a.getId());
 				object.put("type", a.getArticleType());
@@ -135,11 +135,11 @@ public class ArticleController {
 			@ApiParam(name = "typeId", value = "文章类型编号", required = true, example = "1") @RequestParam(required = true) Integer typeId) {
 		JSONArray array = new JSONArray();
 		try {
-			List<ArticleClassificationBean> articleClassifications = articleService
+			List<ClassificationBean> articleClassifications = articleService
 					.findAllArticleClassification(typeId);
-			Iterator<ArticleClassificationBean> iterator = articleClassifications.iterator();
+			Iterator<ClassificationBean> iterator = articleClassifications.iterator();
 			while (iterator.hasNext()) {
-				ArticleClassificationBean a = iterator.next();
+				ClassificationBean a = iterator.next();
 				JSONObject object = new JSONObject();
 				object.put("classificationId", a.getId()+"");
 				object.put("classification", a.getClassification());

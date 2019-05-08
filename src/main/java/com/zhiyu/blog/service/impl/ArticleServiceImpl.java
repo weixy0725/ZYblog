@@ -10,13 +10,13 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.zhiyu.blog.bean.ArticleBean;
-import com.zhiyu.blog.bean.ArticleClassificationBean;
-import com.zhiyu.blog.bean.ArticleTypeBean;
+import com.zhiyu.blog.bean.ClassificationBean;
+import com.zhiyu.blog.bean.TypeBean;
 import com.zhiyu.blog.bean.QArticleBean;
-import com.zhiyu.blog.bean.QArticleClassificationBean;
-import com.zhiyu.blog.dao.ArticleClassificationDao;
+import com.zhiyu.blog.bean.QClassificationBean;
+import com.zhiyu.blog.dao.ClassificationDao;
 import com.zhiyu.blog.dao.ArticleDao;
-import com.zhiyu.blog.dao.ArticleTypeDao;
+import com.zhiyu.blog.dao.TypeDao;
 import com.zhiyu.blog.service.ArticleService;
 
 /**
@@ -32,10 +32,10 @@ public class ArticleServiceImpl implements ArticleService {
 	private ArticleDao articleDao;
 
 	@Autowired
-	private ArticleTypeDao articleTypeDao;
+	private TypeDao articleTypeDao;
 
 	@Autowired
-	private ArticleClassificationDao articleClassificationDao;
+	private ClassificationDao articleClassificationDao;
 
 	@Override
 	public void save(String articleName, String articleSummarize, Integer typeId, Integer classificationId,
@@ -54,12 +54,12 @@ public class ArticleServiceImpl implements ArticleService {
 	}
 
 	@Override
-	public List<ArticleTypeBean> findAllArticleType() {
+	public List<TypeBean> findAllArticleType() {
 		return articleTypeDao.findAll();
 	}
 
 	@Override
-	public List<ArticleClassificationBean> findAllArticleClassification(Integer typeId) {
+	public List<ClassificationBean> findAllArticleClassification(Integer typeId) {
 		return articleClassificationDao.findByTypeId(typeId);
 	}
 
@@ -87,7 +87,7 @@ public class ArticleServiceImpl implements ArticleService {
 	private JPAQuery<Tuple> querySQL(JPAQuery<?> q, Integer typeId, Integer classificationId, Boolean isCount) {
 
 		QArticleBean article = QArticleBean.articleBean;
-		QArticleClassificationBean articleClassification = QArticleClassificationBean.articleClassificationBean;
+		QClassificationBean classification = QClassificationBean.classificationBean;
 
 		JPAQuery<Tuple> query = null;
 		
@@ -96,8 +96,8 @@ public class ArticleServiceImpl implements ArticleService {
 		if (isCount) {
 			query = q.select(article.articleId,article.typeId,article.classificationId).from(article);
 		} else {
-			query = q.select(article, articleClassification).from(article).leftJoin(articleClassification)
-					.on(article.classificationId.eq(articleClassification.id)).orderBy(article.datetime.desc());
+			query = q.select(article, classification).from(article).leftJoin(classification)
+					.on(article.classificationId.eq(classification.id)).orderBy(article.datetime.desc());
 		}
 
 		assert query != null;

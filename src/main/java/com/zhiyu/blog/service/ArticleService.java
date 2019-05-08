@@ -3,8 +3,8 @@ package com.zhiyu.blog.service;
 import java.util.List;
 
 import com.querydsl.core.Tuple;
-import com.zhiyu.blog.bean.ArticleClassificationBean;
-import com.zhiyu.blog.bean.ArticleTypeBean;
+import com.zhiyu.blog.bean.ClassificationBean;
+import com.zhiyu.blog.bean.TypeBean;
 
 /**
  * 文章业务接口类
@@ -27,14 +27,14 @@ public interface ArticleService {
       * 
       * @return
       */
-     List<ArticleTypeBean> findAllArticleType();
+     List<TypeBean> findAllArticleType();
      
      /**
       * 获取所有具体分类
       * 
       * @return
       */
-     List<ArticleClassificationBean> findAllArticleClassification(Integer typeId);
+     List<ClassificationBean> findAllArticleClassification(Integer typeId);
      
      /**
       * 分页获取文章内容

@@ -10,7 +10,7 @@ import javax.persistence.Table;
 import lombok.Data;
 
 /**
- * 文章具体分类实体类
+ * 文章类型实体类
  * 
  * @author xinyuan.wei
  * @date 2019年4月29日
@@ -18,10 +18,11 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "tb_article_classification")
-public class ArticleClassificationBean {
+@Table(name = "tb_type")
+public class TypeBean {
+
 	/**
-	 * 文章具体分类编号
+	 * 文章类型编号
 	 */
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,15 +30,8 @@ public class ArticleClassificationBean {
 	private Integer id;
 
 	/**
-	 * 文章类型编号
+	 * 文章类型
 	 */
-	@Column(name = "type_id")
-	private Integer typeId;
-
-	/**
-	 * 文章具体分类
-	 */
-	@Column(name = "classification")
-	private String classification;
-
+	@Column(name = "article_type")
+	private String articleType;
 }
