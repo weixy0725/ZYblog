@@ -3,6 +3,7 @@ package com.zhiyu.blog.webapi;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -55,7 +57,7 @@ public class ArticleController {
 			@ApiParam(name = "isOriginal", value = "是否原创（0为转载，1为原创）", required = true, example = "1") @RequestParam(required = true) Integer isOriginal,
 			@ApiParam(name = "article", value = "文章内容", required = true, example = "1") @RequestParam(required = true) String article) {
 		try {
-			articleService.save(articleName, articleSummarize, typeId, classificationId,isOriginal,article);
+			articleService.save(articleName, articleSummarize, typeId, classificationId, isOriginal, article);
 			logger.info("存储文章:{}成功！", articleName);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -86,8 +88,7 @@ public class ArticleController {
 				Tuple t = iterator.next();
 				JSONObject o = new JSONObject();
 				ArticleBean articleBean = t.get(QArticleBean.articleBean);
-				ClassificationBean classificationBean = t
-						.get(QClassificationBean.classificationBean);
+				ClassificationBean classificationBean = t.get(QClassificationBean.classificationBean);
 				o.put("articleId", articleBean.getArticleId());
 				o.put("articleName", articleBean.getArticleName());
 				o.put("isOriginal", articleBean.getIsOriginal());
@@ -135,13 +136,12 @@ public class ArticleController {
 			@ApiParam(name = "typeId", value = "文章类型编号", required = true, example = "1") @RequestParam(required = true) Integer typeId) {
 		JSONArray array = new JSONArray();
 		try {
-			List<ClassificationBean> articleClassifications = articleService
-					.findAllArticleClassification(typeId);
+			List<ClassificationBean> articleClassifications = articleService.findAllArticleClassification(typeId);
 			Iterator<ClassificationBean> iterator = articleClassifications.iterator();
 			while (iterator.hasNext()) {
 				ClassificationBean a = iterator.next();
 				JSONObject object = new JSONObject();
-				object.put("classificationId", a.getId()+"");
+				object.put("classificationId", a.getId() + "");
 				object.put("classification", a.getClassification());
 				array.add(object);
 			}
@@ -153,6 +153,33 @@ public class ArticleController {
 		}
 
 		return JSONResultUtil.successResult(ResultCodeEnum.Success.getValue(), new JSONObject(), array);
+	}
+
+	/**
+	 * 上传背景图片
+	 * 
+	 * @param file
+	 * @param buildingId
+	 * @return JSONObject
+	 */
+	@ApiOperation(value = "上传图片", notes = "上传图片")
+	@PostMapping(value = "/uploadPicture")
+	public JSONObject uploadPicture(
+			@ApiParam(name = "file", value = "图片", required = true) @RequestParam("file") MultipartFile file) {
+		JSONObject object = new JSONObject();
+		try {
+			String result = articleService.uploadPictrue(file);
+			if (StringUtils.isEmpty(result)) {
+				return JSONResultUtil.failResult(ResultCodeEnum.Fail.getValue(), "上传图片失败！", "");
+			}
+			object.put("url", result);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return JSONResultUtil.failResult(ResultCodeEnum.Exception.getValue(), "", e.getMessage());
+		}
+
+		return JSONResultUtil.successResult(ResultCodeEnum.Success.getValue(), object, new JSONArray());
 	}
 
 }
