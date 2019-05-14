@@ -151,4 +151,9 @@ public class ArticleServiceImpl implements ArticleService {
 		}
 		return null;
 	}
+
+	@Override
+	public ArticleBean findByArticleId(Long articleId) {
+		return articleDao.findByArticleId(articleId);
+	}
 }

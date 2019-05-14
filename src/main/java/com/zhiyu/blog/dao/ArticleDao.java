@@ -7,6 +7,8 @@ import com.zhiyu.blog.bean.ArticleBean;
 
 public interface ArticleDao
 		extends ExtendedQueryDslJpaRepository<ArticleBean, Long>, JpaSpecificationExecutor<ArticleBean> {
+	
+	ArticleBean findByArticleId(Long articleId);
 
 }
  

@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.querydsl.core.Tuple;
+import com.zhiyu.blog.bean.ArticleBean;
 import com.zhiyu.blog.bean.ClassificationBean;
 import com.zhiyu.blog.bean.TypeBean;
 
@@ -25,6 +26,14 @@ public interface ArticleService {
 	 */
 	void save(String articleName, String articleSummarize, Integer typeId, Integer classificationId, Integer isOriginal,
 			String article);
+	
+	/**
+	 * 获取文章内容
+	 * 
+	 * @param articleId
+	 * @return
+	 */
+	ArticleBean findByArticleId(Long articleId);
 
 	/**
 	 * 获取所有文章类型
