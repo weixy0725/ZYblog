@@ -85,4 +85,10 @@ public class ArticleBean {
 	 */
 	@Column(name="message_count")
 	private Integer messageCount;
+	
+	/**
+	 * 封面
+	 */
+	@Column(name="cover")
+	private String cover;
 }

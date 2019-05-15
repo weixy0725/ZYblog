@@ -2,6 +2,7 @@ package com.zhiyu.blog.webapi;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -65,7 +66,7 @@ public class ArticleController {
 		}
 		return JSONResultUtil.successResult(ResultCodeEnum.Success.getValue(), new JSONObject(), new JSONArray());
 	}
-	
+
 	@ApiOperation(value = "获取文章")
 	@GetMapping(value = "/article")
 	public JSONObject getArticle(
@@ -73,15 +74,15 @@ public class ArticleController {
 		JSONObject object = new JSONObject();
 		try {
 			ArticleBean articleBean = articleService.findByArticleId(articleId);
-			if(null!=articleBean) {
+			if (null != articleBean) {
 				object.put("articleName", articleBean.getArticleName());
 				object.put("articleContent", articleBean.getArticleContent());
 				object.put("articleSummarize", articleBean.getArticleSummarize());
 				object.put("isOriginal", articleBean.getIsOriginal());
 				object.put("datetime", DateFormatUtil.DateFormat(articleBean.getDatetime()));
 				object.put("browseTimes", articleBean.getBrowseTimes());
-				//留言等待做
-			}else {
+				// 留言等待做
+			} else {
 				return JSONResultUtil.failResult(ResultCodeEnum.Fail.getValue(), "当前文章内容不存在！", "");
 			}
 		} catch (Exception e) {
@@ -123,6 +124,7 @@ public class ArticleController {
 				o.put("datetime", DateFormatUtil.DateFormat(articleBean.getDatetime()));
 				o.put("browseTimes", articleBean.getBrowseTimes());
 				o.put("messageCount", articleBean.getMessageCount());
+				o.put("coverOne", articleBean.getCover());
 				array.add(o);
 			}
 
