@@ -55,10 +55,11 @@ public class ArticleController {
 			@ApiParam(name = "articleSummarize", value = "文章梗概", required = true, example = "1") @RequestParam(required = true) String articleSummarize,
 			@ApiParam(name = "typeId", value = "文章类型编号", required = true, example = "1") @RequestParam(required = true) Integer typeId,
 			@ApiParam(name = "classificationId", value = "文章具体分类编号", required = true, example = "1") @RequestParam(required = true) Integer classificationId,
-			@ApiParam(name = "isOriginal", value = "是否原创（0为转载，1为原创）", required = true, example = "1") @RequestParam(required = true) Integer isOriginal,
-			@ApiParam(name = "article", value = "文章内容", required = true, example = "1") @RequestParam(required = true) String article) {
+			@ApiParam(name = "isOriginal", value = "是否原创（0为转载，1为原创，2为练习，3为临摹）", required = true, example = "1") @RequestParam(required = true) Integer isOriginal,
+			@ApiParam(name = "article", value = "文章内容", required = true, example = "1") @RequestParam(required = true) String article,
+			@ApiParam(name = "cover", value = "封面", required = false, example = "1") @RequestParam(required = false) String cover) {
 		try {
-			articleService.save(articleName, articleSummarize, typeId, classificationId, isOriginal, article);
+			articleService.save(articleName, articleSummarize, typeId, classificationId, isOriginal, article,cover);
 			logger.info("存储文章:{}成功！", articleName);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -124,7 +125,7 @@ public class ArticleController {
 				o.put("datetime", DateFormatUtil.DateFormat(articleBean.getDatetime()));
 				o.put("browseTimes", articleBean.getBrowseTimes());
 				o.put("messageCount", articleBean.getMessageCount());
-				o.put("coverOne", articleBean.getCover());
+				o.put("cover", articleBean.getCover()==null?"":articleBean.getCover());
 				array.add(o);
 			}
 

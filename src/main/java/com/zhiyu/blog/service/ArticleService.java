@@ -25,7 +25,7 @@ public interface ArticleService {
 	 * @param article
 	 */
 	void save(String articleName, String articleSummarize, Integer typeId, Integer classificationId, Integer isOriginal,
-			String article);
+			String article,String cover);
 	
 	/**
 	 * 获取文章内容

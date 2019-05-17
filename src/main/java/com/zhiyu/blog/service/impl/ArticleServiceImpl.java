@@ -49,7 +49,7 @@ public class ArticleServiceImpl implements ArticleService {
 
 	@Override
 	public void save(String articleName, String articleSummarize, Integer typeId, Integer classificationId,
-			Integer isOriginal, String article) {
+			Integer isOriginal, String article,String cover) {
 		ArticleBean articleBean = new ArticleBean();
 		articleBean.setArticleName(articleName);
 		articleBean.setArticleSummarize(articleSummarize);
@@ -60,6 +60,7 @@ public class ArticleServiceImpl implements ArticleService {
 		articleBean.setDatetime(LocalDateTime.now());
 		articleBean.setBrowseTimes(0);
 		articleBean.setMessageCount(0);
+		articleBean.setCover(cover);
 		articleDao.save(articleBean);
 	}
 
