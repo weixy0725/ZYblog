@@ -2,14 +2,15 @@ package com.zhiyu.blog.webapi;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,6 +24,7 @@ import com.zhiyu.blog.bean.ClassificationBean;
 import com.zhiyu.blog.bean.TypeBean;
 import com.zhiyu.blog.bean.QArticleBean;
 import com.zhiyu.blog.bean.QClassificationBean;
+import com.zhiyu.blog.bean.QTypeBean;
 import com.zhiyu.blog.service.ArticleService;
 import com.zhiyu.blog.util.DateFormatUtil;
 import com.zhiyu.blog.util.JSONResultUtil;
@@ -82,6 +84,9 @@ public class ArticleController {
 				object.put("isOriginal", articleBean.getIsOriginal());
 				object.put("datetime", DateFormatUtil.DateFormat(articleBean.getDatetime()));
 				object.put("browseTimes", articleBean.getBrowseTimes());
+				object.put("cover", articleBean.getCover());
+				object.put("typeId", articleBean.getTypeId());
+				object.put("classificationId", articleBean.getClassificationId());
 				// 留言等待做
 			} else {
 				return JSONResultUtil.failResult(ResultCodeEnum.Fail.getValue(), "当前文章内容不存在！", "");
@@ -116,6 +121,7 @@ public class ArticleController {
 				JSONObject o = new JSONObject();
 				ArticleBean articleBean = t.get(QArticleBean.articleBean);
 				ClassificationBean classificationBean = t.get(QClassificationBean.classificationBean);
+				TypeBean typeBean = t.get(QTypeBean.typeBean);
 				o.put("articleId", articleBean.getArticleId());
 				o.put("articleName", articleBean.getArticleName());
 				o.put("isOriginal", articleBean.getIsOriginal());
@@ -126,6 +132,8 @@ public class ArticleController {
 				o.put("browseTimes", articleBean.getBrowseTimes());
 				o.put("messageCount", articleBean.getMessageCount());
 				o.put("cover", articleBean.getCover()==null?"":articleBean.getCover());
+				o.put("typeId", typeBean.getId());
+				o.put("type", typeBean.getArticleType());
 				array.add(o);
 			}
 
@@ -210,4 +218,40 @@ public class ArticleController {
 		return JSONResultUtil.successResult(ResultCodeEnum.Success.getValue(), object, new JSONArray());
 	}
 
+	@ApiOperation(value = "删除文章")
+	@DeleteMapping(value = "/article")
+	public JSONObject deleteArticle(
+			@ApiParam(name = "articleId", value = "文章编号", required = true, example = "1") @RequestParam(required = true) Long articleId) {
+		try {
+			articleService.deleteByArticleId(articleId);			
+		} catch (Exception e) {
+			e.printStackTrace();
+			return JSONResultUtil.failResult(ResultCodeEnum.Exception.getValue(), "", e.getMessage());
+		}
+		return JSONResultUtil.successResult(ResultCodeEnum.Success.getValue(), new JSONObject(), new JSONArray());
+	}
+	
+	@ApiOperation(value = "更新文章")
+	@PutMapping(value = "/article")
+	public JSONObject updateArticle(
+			@ApiParam(name = "articleId", value = "文章编号", required = true, example = "1") @RequestParam(required = true) Long articleId,
+			@ApiParam(name = "articleName", value = "文章名称", required = true, example = "1") @RequestParam(required = true) String articleName,
+			@ApiParam(name = "articleSummarize", value = "文章梗概", required = true, example = "1") @RequestParam(required = true) String articleSummarize,
+			@ApiParam(name = "typeId", value = "文章类型编号", required = true, example = "1") @RequestParam(required = true) Integer typeId,
+			@ApiParam(name = "classificationId", value = "文章具体分类编号", required = true, example = "1") @RequestParam(required = true) Integer classificationId,
+			@ApiParam(name = "isOriginal", value = "是否原创（0为转载，1为原创，2为练习，3为临摹）", required = true, example = "1") @RequestParam(required = true) Integer isOriginal,
+			@ApiParam(name = "article", value = "文章内容", required = true, example = "1") @RequestParam(required = true) String article,
+			@ApiParam(name = "cover", value = "封面", required = false, example = "1") @RequestParam(required = false) String cover) {
+		try {
+			int code=articleService.updateArticle(articleId, articleName, articleSummarize, typeId, classificationId, isOriginal, article, cover);
+			if(code==ResultCodeEnum.Fail.getValue()) {
+				return JSONResultUtil.failResult(ResultCodeEnum.Fail.getValue(), "更新文章失败，当前文章不存在！","");		
+			}
+			logger.info("存储文章:{}成功！", articleName);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return JSONResultUtil.failResult(ResultCodeEnum.Exception.getValue(), "", e.getMessage());
+		}
+		return JSONResultUtil.successResult(ResultCodeEnum.Success.getValue(), new JSONObject(), new JSONArray());
+	}
 }

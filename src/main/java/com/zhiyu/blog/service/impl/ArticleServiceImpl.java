@@ -21,10 +21,12 @@ import com.zhiyu.blog.bean.ClassificationBean;
 import com.zhiyu.blog.bean.TypeBean;
 import com.zhiyu.blog.bean.QArticleBean;
 import com.zhiyu.blog.bean.QClassificationBean;
+import com.zhiyu.blog.bean.QTypeBean;
 import com.zhiyu.blog.dao.ClassificationDao;
 import com.zhiyu.blog.dao.ArticleDao;
 import com.zhiyu.blog.dao.TypeDao;
 import com.zhiyu.blog.service.ArticleService;
+import com.zhiyu.blog.util.ResultCodeEnum;
 
 /**
  * 文章业务实现类
@@ -98,6 +100,7 @@ public class ArticleServiceImpl implements ArticleService {
 
 		QArticleBean article = QArticleBean.articleBean;
 		QClassificationBean classification = QClassificationBean.classificationBean;
+		QTypeBean typeBean = QTypeBean.typeBean;
 
 		JPAQuery<Tuple> query = null;
 
@@ -106,8 +109,8 @@ public class ArticleServiceImpl implements ArticleService {
 		if (isCount) {
 			query = q.select(article.articleId, article.typeId, article.classificationId).from(article);
 		} else {
-			query = q.select(article, classification).from(article).leftJoin(classification)
-					.on(article.classificationId.eq(classification.id)).orderBy(article.datetime.desc());
+			query = q.select(article, classification,typeBean).from(article).leftJoin(classification)
+					.on(article.classificationId.eq(classification.id)).leftJoin(typeBean).on(article.typeId.eq(typeBean.id)).orderBy(article.datetime.desc());
 		}
 
 		assert query != null;
@@ -156,5 +159,32 @@ public class ArticleServiceImpl implements ArticleService {
 	@Override
 	public ArticleBean findByArticleId(Long articleId) {
 		return articleDao.findByArticleId(articleId);
+	}
+	
+	@Override
+	public void deleteByArticleId(Long articleId) {
+		articleDao.deleteByArticleId(articleId);
+	}
+
+	@Override
+	public int updateArticle(Long articleId, String articleName, String articleSummarize, Integer typeId,
+			Integer classificationId, Integer isOriginal, String article, String cover) {
+		ArticleBean articleBean = articleDao.findByArticleId(articleId);
+		if(null==articleBean) {
+			return ResultCodeEnum.Fail.getValue();
+		}else {
+			articleBean.setArticleName(articleName);
+			articleBean.setArticleSummarize(articleSummarize);
+			articleBean.setTypeId(typeId);
+			articleBean.setClassificationId(classificationId);
+			articleBean.setIsOriginal(isOriginal);
+			articleBean.setArticleContent(article);
+			articleBean.setBrowseTimes(0);
+			articleBean.setMessageCount(0);
+			articleBean.setCover(cover);
+			articleDao.save(articleBean);
+			return ResultCodeEnum.Success.getValue();	
+		}
+		
 	}
 }

@@ -25,8 +25,8 @@ public interface ArticleService {
 	 * @param article
 	 */
 	void save(String articleName, String articleSummarize, Integer typeId, Integer classificationId, Integer isOriginal,
-			String article,String cover);
-	
+			String article, String cover);
+
 	/**
 	 * 获取文章内容
 	 * 
@@ -78,4 +78,19 @@ public interface ArticleService {
 	 * @throws Exception
 	 */
 	String uploadPictrue(MultipartFile file) throws Exception, IOException;
+
+	/**
+	 * 删除文章
+	 * 
+	 * @param articleId
+	 */
+	public void deleteByArticleId(Long articleId);
+	
+	/**
+	 * 更新文章
+	 * 
+	 * @param articleId
+	 */
+	public int updateArticle(Long articleId,String articleName, String articleSummarize, Integer typeId, Integer classificationId, Integer isOriginal,
+			String article, String cover);
 }
