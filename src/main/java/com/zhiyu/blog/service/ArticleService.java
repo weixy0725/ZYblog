@@ -34,6 +34,14 @@ public interface ArticleService {
 	 * @return
 	 */
 	ArticleBean findByArticleId(Long articleId);
+	
+	/**
+	 * 获取类型名称
+	 * 
+	 * @param typeId
+	 * @return
+	 */
+	TypeBean findById(Integer typeId);
 
 	/**
 	 * 获取所有文章类型

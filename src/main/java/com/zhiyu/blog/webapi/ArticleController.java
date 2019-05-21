@@ -172,6 +172,7 @@ public class ArticleController {
 			@ApiParam(name = "typeId", value = "文章类型编号", required = true, example = "1") @RequestParam(required = true) Integer typeId) {
 		JSONArray array = new JSONArray();
 		try {
+			TypeBean typeBean = articleService.findById(typeId);
 			List<ClassificationBean> articleClassifications = articleService.findAllArticleClassification(typeId);
 			Iterator<ClassificationBean> iterator = articleClassifications.iterator();
 			while (iterator.hasNext()) {
@@ -179,6 +180,7 @@ public class ArticleController {
 				JSONObject object = new JSONObject();
 				object.put("classificationId", a.getId() + "");
 				object.put("classification", a.getClassification());
+				object.put("type", typeBean.getArticleType());
 				array.add(object);
 			}
 			logger.info("获取文章具体分类成功!");

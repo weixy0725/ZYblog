@@ -10,7 +10,6 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.querydsl.core.BooleanBuilder;
@@ -51,7 +50,7 @@ public class ArticleServiceImpl implements ArticleService {
 
 	@Override
 	public void save(String articleName, String articleSummarize, Integer typeId, Integer classificationId,
-			Integer isOriginal, String article,String cover) {
+			Integer isOriginal, String article, String cover) {
 		ArticleBean articleBean = new ArticleBean();
 		articleBean.setArticleName(articleName);
 		articleBean.setArticleSummarize(articleSummarize);
@@ -109,8 +108,9 @@ public class ArticleServiceImpl implements ArticleService {
 		if (isCount) {
 			query = q.select(article.articleId, article.typeId, article.classificationId).from(article);
 		} else {
-			query = q.select(article, classification,typeBean).from(article).leftJoin(classification)
-					.on(article.classificationId.eq(classification.id)).leftJoin(typeBean).on(article.typeId.eq(typeBean.id)).orderBy(article.datetime.desc());
+			query = q.select(article, classification, typeBean).from(article).leftJoin(classification)
+					.on(article.classificationId.eq(classification.id)).leftJoin(typeBean)
+					.on(article.typeId.eq(typeBean.id)).orderBy(article.datetime.desc());
 		}
 
 		assert query != null;
@@ -144,7 +144,7 @@ public class ArticleServiceImpl implements ArticleService {
 					: null;
 			if (null != type) {
 				if ("png".equals(type.toLowerCase()) || "jpg".equals(type.toLowerCase())
-						|| "jpeg".equals(type.toLowerCase())||"gif".equals(type.toLowerCase())) {
+						|| "jpeg".equals(type.toLowerCase()) || "gif".equals(type.toLowerCase())) {
 					String newImgName = UUID.randomUUID().toString().replace("-", "") + "." + type.toLowerCase();
 					localPath = localPath.resolve(newImgName);
 					file.transferTo(localPath.toFile());
@@ -160,7 +160,7 @@ public class ArticleServiceImpl implements ArticleService {
 	public ArticleBean findByArticleId(Long articleId) {
 		return articleDao.findByArticleId(articleId);
 	}
-	
+
 	@Override
 	public void deleteByArticleId(Long articleId) {
 		articleDao.deleteByArticleId(articleId);
@@ -170,9 +170,9 @@ public class ArticleServiceImpl implements ArticleService {
 	public int updateArticle(Long articleId, String articleName, String articleSummarize, Integer typeId,
 			Integer classificationId, Integer isOriginal, String article, String cover) {
 		ArticleBean articleBean = articleDao.findByArticleId(articleId);
-		if(null==articleBean) {
+		if (null == articleBean) {
 			return ResultCodeEnum.Fail.getValue();
-		}else {
+		} else {
 			articleBean.setArticleName(articleName);
 			articleBean.setArticleSummarize(articleSummarize);
 			articleBean.setTypeId(typeId);
@@ -183,8 +183,14 @@ public class ArticleServiceImpl implements ArticleService {
 			articleBean.setMessageCount(0);
 			articleBean.setCover(cover);
 			articleDao.save(articleBean);
-			return ResultCodeEnum.Success.getValue();	
+			return ResultCodeEnum.Success.getValue();
 		}
-		
+
+	}
+
+	@Override
+	public TypeBean findById(Integer typeId) {
+		TypeBean typeBean = articleTypeDao.findById(typeId).get();
+		return typeBean;
 	}
 }
