@@ -61,7 +61,7 @@ public class ArticleController {
 			@ApiParam(name = "article", value = "文章内容", required = true, example = "1") @RequestParam(required = true) String article,
 			@ApiParam(name = "cover", value = "封面", required = false, example = "1") @RequestParam(required = false) String cover) {
 		try {
-			articleService.save(articleName, articleSummarize, typeId, classificationId, isOriginal, article,cover);
+			articleService.save(articleName, articleSummarize, typeId, classificationId, isOriginal, article, cover);
 			logger.info("存储文章:{}成功！", articleName);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -131,7 +131,7 @@ public class ArticleController {
 				o.put("datetime", DateFormatUtil.DateFormat(articleBean.getDatetime()));
 				o.put("browseTimes", articleBean.getBrowseTimes());
 				o.put("messageCount", articleBean.getMessageCount());
-				o.put("cover", articleBean.getCover()==null?"":articleBean.getCover());
+				o.put("cover", articleBean.getCover() == null ? "" : articleBean.getCover());
 				o.put("typeId", typeBean.getId());
 				o.put("type", typeBean.getArticleType());
 				array.add(o);
@@ -225,14 +225,14 @@ public class ArticleController {
 	public JSONObject deleteArticle(
 			@ApiParam(name = "articleId", value = "文章编号", required = true, example = "1") @RequestParam(required = true) Long articleId) {
 		try {
-			articleService.deleteByArticleId(articleId);			
+			articleService.deleteByArticleId(articleId);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return JSONResultUtil.failResult(ResultCodeEnum.Exception.getValue(), "", e.getMessage());
 		}
 		return JSONResultUtil.successResult(ResultCodeEnum.Success.getValue(), new JSONObject(), new JSONArray());
 	}
-	
+
 	@ApiOperation(value = "更新文章")
 	@PutMapping(value = "/article")
 	public JSONObject updateArticle(
@@ -245,11 +245,59 @@ public class ArticleController {
 			@ApiParam(name = "article", value = "文章内容", required = true, example = "1") @RequestParam(required = true) String article,
 			@ApiParam(name = "cover", value = "封面", required = false, example = "1") @RequestParam(required = false) String cover) {
 		try {
-			int code=articleService.updateArticle(articleId, articleName, articleSummarize, typeId, classificationId, isOriginal, article, cover);
-			if(code==ResultCodeEnum.Fail.getValue()) {
-				return JSONResultUtil.failResult(ResultCodeEnum.Fail.getValue(), "更新文章失败，当前文章不存在！","");		
+			int code = articleService.updateArticle(articleId, articleName, articleSummarize, typeId, classificationId,
+					isOriginal, article, cover);
+			if (code == ResultCodeEnum.Fail.getValue()) {
+				return JSONResultUtil.failResult(ResultCodeEnum.Fail.getValue(), "更新文章失败，当前文章不存在！", "");
 			}
 			logger.info("存储文章:{}成功！", articleName);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return JSONResultUtil.failResult(ResultCodeEnum.Exception.getValue(), "", e.getMessage());
+		}
+		return JSONResultUtil.successResult(ResultCodeEnum.Success.getValue(), new JSONObject(), new JSONArray());
+	}
+
+	@ApiOperation(value = "新增文章具体分类")
+	@PostMapping(value = "/classification")
+	public JSONObject addClassification(
+			@ApiParam(name = "typeId", value = "文章类型编号", required = true, example = "1") @RequestParam(required = true) Integer typeId,
+			@ApiParam(name = "classification", value = "具体分类名", required = true, example = "1") @RequestParam(required = true) String classification) {
+		try {
+			articleService.addClassification(typeId, classification);
+			logger.info("新增文章具体分类成功!");
+		} catch (Exception e) {
+			e.printStackTrace();
+			return JSONResultUtil.failResult(ResultCodeEnum.Exception.getValue(), "", e.getMessage());
+		}
+		return JSONResultUtil.successResult(ResultCodeEnum.Success.getValue(), new JSONObject(), new JSONArray());
+	}
+
+	@ApiOperation(value = "更新文章具体分类")
+	@PutMapping(value = "/classification")
+	public JSONObject updateClassification(
+			@ApiParam(name = "classificationId", value = "具体分类编号", required = true, example = "1") @RequestParam(required = true) Integer classificationId,
+			@ApiParam(name = "classification", value = "具体分类名", required = true, example = "1") @RequestParam(required = true) String classification) {
+		try {
+			int result = articleService.updateClassification(classificationId, classification);
+			if (result == ResultCodeEnum.Fail.getValue()) {
+				return JSONResultUtil.failResult(ResultCodeEnum.Fail.getValue(), "更新具体分类失败！", "");
+			}
+			logger.info("新增文章具体分类成功!");
+		} catch (Exception e) {
+			e.printStackTrace();
+			return JSONResultUtil.failResult(ResultCodeEnum.Exception.getValue(), "", e.getMessage());
+		}
+		return JSONResultUtil.successResult(ResultCodeEnum.Success.getValue(), new JSONObject(), new JSONArray());
+	}
+	
+	@ApiOperation(value = "更新文章具体分类")
+	@DeleteMapping(value = "/classification")
+	public JSONObject updateClassification(
+			@ApiParam(name = "classificationId", value = "具体分类编号", required = true, example = "1") @RequestParam(required = true) Integer classificationId) {
+		try {
+			articleService.deleteClassification(classificationId);			
+			logger.info("删除文章具体分类成功!");
 		} catch (Exception e) {
 			e.printStackTrace();
 			return JSONResultUtil.failResult(ResultCodeEnum.Exception.getValue(), "", e.getMessage());

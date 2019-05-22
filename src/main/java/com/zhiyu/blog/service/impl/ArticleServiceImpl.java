@@ -193,4 +193,29 @@ public class ArticleServiceImpl implements ArticleService {
 		TypeBean typeBean = articleTypeDao.findById(typeId).get();
 		return typeBean;
 	}
+
+	@Override
+	public void addClassification(Integer typeId, String classification) {
+		ClassificationBean classificationBean = new ClassificationBean();
+		classificationBean.setTypeId(typeId);
+		classificationBean.setClassification(classification);
+		articleClassificationDao.saveAndFlush(classificationBean);
+	}
+
+	@Override
+	public int updateClassification(Integer classificaitonId, String classification) {
+		ClassificationBean classificationBean = articleClassificationDao.getOne(classificaitonId);
+		if(null!=classificationBean) {
+			classificationBean.setClassification(classification);
+			articleClassificationDao.save(classificationBean);
+		}else {
+			return ResultCodeEnum.Fail.getValue();
+		}
+		return ResultCodeEnum.Success.getValue();
+	}
+
+	@Override
+	public void deleteClassification(Integer classificaitonId) {
+		articleClassificationDao.deleteById(classificaitonId);
+	}
 }

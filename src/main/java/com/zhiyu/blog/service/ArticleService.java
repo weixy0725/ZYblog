@@ -101,4 +101,27 @@ public interface ArticleService {
 	 */
 	public int updateArticle(Long articleId,String articleName, String articleSummarize, Integer typeId, Integer classificationId, Integer isOriginal,
 			String article, String cover);
+	/**
+	 * 新增文章具体分类
+	 * 
+	 * @param typeId
+	 * @param classification
+	 */
+	public void addClassification(Integer typeId,String classification);
+	
+	/**
+	 * 更新文章具体分类
+	 * 
+	 * @param classificaitonId
+	 * @param classification
+	 */
+	public int updateClassification(Integer classificaitonId,String classification);
+	
+	/**
+	 * 删除具体分类
+	 * 
+	 * @param classificaitonId
+	 * @return
+	 */
+	public void deleteClassification(Integer classificaitonId);
 }
