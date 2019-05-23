@@ -26,6 +26,7 @@ import com.zhiyu.blog.dao.ArticleDao;
 import com.zhiyu.blog.dao.TypeDao;
 import com.zhiyu.blog.service.ArticleService;
 import com.zhiyu.blog.util.ResultCodeEnum;
+import com.zhiyu.blog.util.WatermarkUtil;
 
 /**
  * 文章业务实现类
@@ -132,7 +133,7 @@ public class ArticleServiceImpl implements ArticleService {
 	}
 
 	@Override
-	public String uploadPictrue(MultipartFile file) throws Exception, IOException {
+	public String uploadPictrue(MultipartFile file,Boolean isMark) throws Exception, IOException {
 		if (null != file) {
 			// 图片本地要存储至的路径
 			Path localPath = Paths.get(imgLocalSavePath);
@@ -146,9 +147,16 @@ public class ArticleServiceImpl implements ArticleService {
 				if ("png".equals(type.toLowerCase()) || "jpg".equals(type.toLowerCase())
 						|| "jpeg".equals(type.toLowerCase()) || "gif".equals(type.toLowerCase())) {
 					String newImgName = UUID.randomUUID().toString().replace("-", "") + "." + type.toLowerCase();
-					localPath = localPath.resolve(newImgName);
-					file.transferTo(localPath.toFile());
-					return newImgName;
+					Path savePath = localPath.resolve(newImgName);
+					file.transferTo(savePath.toFile());
+					if(isMark) {
+						String markImgName =UUID.randomUUID().toString().replace("-", "") + "." + type.toLowerCase();
+						Path markPath = localPath.resolve(markImgName);
+						WatermarkUtil.textWatermark(savePath.toString(), markPath.toString(), type.toLowerCase());
+						return markImgName;
+					}else {
+					   return newImgName;
+					}
 				}
 			}
 

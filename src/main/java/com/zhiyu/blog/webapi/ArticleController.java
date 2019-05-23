@@ -203,10 +203,11 @@ public class ArticleController {
 	@ApiOperation(value = "上传图片", notes = "上传图片")
 	@PostMapping(value = "/uploadPicture")
 	public JSONObject uploadPicture(
-			@ApiParam(name = "file", value = "图片", required = true) @RequestParam("file") MultipartFile file) {
+			@ApiParam(name = "file", value = "图片", required = true) @RequestParam("file") MultipartFile file,
+			@ApiParam(name = "isMark", value = "是否加水印", required = false) @RequestParam("isMark") Boolean isMark) {
 		JSONObject object = new JSONObject();
 		try {
-			String result = articleService.uploadPictrue(file);
+			String result = articleService.uploadPictrue(file,isMark);
 			if (StringUtils.isEmpty(result)) {
 				return JSONResultUtil.failResult(ResultCodeEnum.Fail.getValue(), "上传图片失败！", "");
 			}

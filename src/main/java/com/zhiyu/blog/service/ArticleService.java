@@ -85,7 +85,7 @@ public interface ArticleService {
 	 * @throws IOException
 	 * @throws Exception
 	 */
-	String uploadPictrue(MultipartFile file) throws Exception, IOException;
+	String uploadPictrue(MultipartFile file,Boolean isMark) throws Exception, IOException;
 
 	/**
 	 * 删除文章
