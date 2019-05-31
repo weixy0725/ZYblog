@@ -87,7 +87,12 @@ public class ArticleController {
 				object.put("cover", articleBean.getCover());
 				object.put("typeId", articleBean.getTypeId());
 				object.put("classificationId", articleBean.getClassificationId());
+				object.put("messageCount", articleBean.getMessageCount());
 				// 留言等待做
+				//浏览次数暂时简单++
+				int count = articleBean.getBrowseTimes().intValue()+1;
+				articleBean.setBrowseTimes(count);
+				articleService.save(articleBean);
 			} else {
 				return JSONResultUtil.failResult(ResultCodeEnum.Fail.getValue(), "当前文章内容不存在！", "");
 			}
@@ -210,6 +215,33 @@ public class ArticleController {
 			String result = articleService.uploadPictrue(file,isMark);
 			if (StringUtils.isEmpty(result)) {
 				return JSONResultUtil.failResult(ResultCodeEnum.Fail.getValue(), "上传图片失败！", "");
+			}
+			object.put("url", result);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return JSONResultUtil.failResult(ResultCodeEnum.Exception.getValue(), "", e.getMessage());
+		}
+
+		return JSONResultUtil.successResult(ResultCodeEnum.Success.getValue(), object, new JSONArray());
+	}
+	
+	/**
+	 * 上传封面
+	 * 
+	 * @param file
+	 * @param buildingId
+	 * @return JSONObject
+	 */
+	@ApiOperation(value = "上传封面", notes = "上传封面")
+	@PostMapping(value = "/uploadPictureCover")
+	public JSONObject uploadPictureCover(
+			@ApiParam(name = "file", value = "图片", required = true) @RequestParam("img") MultipartFile img) {
+		JSONObject object = new JSONObject();
+		try {
+			String result = articleService.uploadPictrue(img,false);
+			if (StringUtils.isEmpty(result)) {
+				return JSONResultUtil.failResult(ResultCodeEnum.Fail.getValue(), "上传封面失败！", "");
 			}
 			object.put("url", result);
 

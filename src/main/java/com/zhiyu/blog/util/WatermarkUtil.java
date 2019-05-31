@@ -40,7 +40,7 @@ public class WatermarkUtil {
             g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_BILINEAR);
             g.drawImage(srcImg.getScaledInstance(srcImg.getWidth(null), srcImg.getHeight(null), java.awt.Image.SCALE_SMOOTH), 0, 0, null);
             // 5、设置水印文字颜色
-            g.setColor(new Color(241,240,237));
+            g.setColor(new Color(0,0,0));
             // 6、设置水印文字Font
             g.setFont(new java.awt.Font("宋体", java.awt.Font.BOLD, 50));
             // 7、设置水印文字透明度

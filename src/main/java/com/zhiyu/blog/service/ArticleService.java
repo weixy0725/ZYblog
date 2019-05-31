@@ -124,4 +124,9 @@ public interface ArticleService {
 	 * @return
 	 */
 	public void deleteClassification(Integer classificaitonId);
+	
+	/**
+	 * 更新或保存文章实体
+	 */
+	public void save(ArticleBean articelBean);
 }

@@ -226,4 +226,9 @@ public class ArticleServiceImpl implements ArticleService {
 	public void deleteClassification(Integer classificaitonId) {
 		articleClassificationDao.deleteById(classificaitonId);
 	}
+
+	@Override
+	public void save(ArticleBean articelBean) {
+		articleDao.save(articelBean);
+	}
 }
