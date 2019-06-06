@@ -4,8 +4,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,6 +31,7 @@ import com.zhiyu.blog.util.ResultCodeEnum;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 文章管理接口类
@@ -40,6 +39,7 @@ import io.swagger.annotations.ApiParam;
  * @author xinyuan.wei
  * @date 2019年4月29日
  */
+@Slf4j
 @Api(tags = "文章管理")
 @RestController
 @RequestMapping(value = "/articleManagement")
@@ -48,7 +48,7 @@ public class ArticleController {
 	@Autowired
 	private ArticleService articleService;
 
-	private static final Logger logger = LoggerFactory.getLogger(ArticleController.class);
+	//private static final log log = logFactory.getlog(ArticleController.class);
 
 	@ApiOperation(value = "新增文章")
 	@PostMapping(value = "/article")
@@ -62,7 +62,7 @@ public class ArticleController {
 			@ApiParam(name = "cover", value = "封面", required = false, example = "1") @RequestParam(required = false) String cover) {
 		try {
 			articleService.save(articleName, articleSummarize, typeId, classificationId, isOriginal, article, cover);
-			logger.info("存储文章:{}成功！", articleName);
+			log.info("存储文章:{}成功！", articleName);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return JSONResultUtil.failResult(ResultCodeEnum.Exception.getValue(), "", e.getMessage());
@@ -163,7 +163,7 @@ public class ArticleController {
 				object.put("type", a.getArticleType());
 				array.add(object);
 			}
-			logger.info("获取文章类型成功!");
+			log.info("获取文章类型成功!");
 		} catch (Exception e) {
 			e.printStackTrace();
 			return JSONResultUtil.failResult(ResultCodeEnum.Exception.getValue(), "", e.getMessage());
@@ -188,7 +188,7 @@ public class ArticleController {
 				object.put("type", typeBean.getArticleType());
 				array.add(object);
 			}
-			logger.info("获取文章具体分类成功!");
+			log.info("获取文章具体分类成功!");
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -283,7 +283,7 @@ public class ArticleController {
 			if (code == ResultCodeEnum.Fail.getValue()) {
 				return JSONResultUtil.failResult(ResultCodeEnum.Fail.getValue(), "更新文章失败，当前文章不存在！", "");
 			}
-			logger.info("存储文章:{}成功！", articleName);
+			log.info("存储文章:{}成功！", articleName);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return JSONResultUtil.failResult(ResultCodeEnum.Exception.getValue(), "", e.getMessage());
@@ -298,7 +298,7 @@ public class ArticleController {
 			@ApiParam(name = "classification", value = "具体分类名", required = true, example = "1") @RequestParam(required = true) String classification) {
 		try {
 			articleService.addClassification(typeId, classification);
-			logger.info("新增文章具体分类成功!");
+			log.info("新增文章具体分类成功!");
 		} catch (Exception e) {
 			e.printStackTrace();
 			return JSONResultUtil.failResult(ResultCodeEnum.Exception.getValue(), "", e.getMessage());
@@ -316,7 +316,7 @@ public class ArticleController {
 			if (result == ResultCodeEnum.Fail.getValue()) {
 				return JSONResultUtil.failResult(ResultCodeEnum.Fail.getValue(), "更新具体分类失败！", "");
 			}
-			logger.info("新增文章具体分类成功!");
+			log.info("新增文章具体分类成功!");
 		} catch (Exception e) {
 			e.printStackTrace();
 			return JSONResultUtil.failResult(ResultCodeEnum.Exception.getValue(), "", e.getMessage());
@@ -330,7 +330,7 @@ public class ArticleController {
 			@ApiParam(name = "classificationId", value = "具体分类编号", required = true, example = "1") @RequestParam(required = true) Integer classificationId) {
 		try {
 			articleService.deleteClassification(classificationId);			
-			logger.info("删除文章具体分类成功!");
+			log.info("删除文章具体分类成功!");
 		} catch (Exception e) {
 			e.printStackTrace();
 			return JSONResultUtil.failResult(ResultCodeEnum.Exception.getValue(), "", e.getMessage());

@@ -42,7 +42,7 @@ public class WatermarkUtil {
             // 5、设置水印文字颜色
             g.setColor(new Color(0,0,0));
             // 6、设置水印文字Font
-            g.setFont(new java.awt.Font("宋体", java.awt.Font.BOLD, 50));
+            g.setFont(new java.awt.Font("Times New Roman", java.awt.Font.BOLD, 50));
             // 7、设置水印文字透明度
             g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, 0.15f));
             // 8、第一参数->设置的内容，后面两个参数->文字在图片上的坐标位置(x,y)
