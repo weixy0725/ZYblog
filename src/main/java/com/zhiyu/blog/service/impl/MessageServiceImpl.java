@@ -8,7 +8,9 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.zhiyu.blog.bean.ArticleBean;
 import com.zhiyu.blog.bean.MessageBean;
+import com.zhiyu.blog.dao.ArticleDao;
 import com.zhiyu.blog.dao.MessageDao;
 import com.zhiyu.blog.service.MessageService;
 import com.zhiyu.blog.util.IpUtil;
@@ -24,6 +26,9 @@ public class MessageServiceImpl implements MessageService {
 	
 	@Autowired
 	private MessageDao messageDao;
+	
+	@Autowired
+	private ArticleDao articleDao;
 
 	@Override
 	public void saveMessage(Long articleId, String message, Integer type, HttpServletRequest request) throws Exception {
@@ -39,12 +44,17 @@ public class MessageServiceImpl implements MessageService {
 		}
 		messageBean.setIp(ip);
 		messageDao.save(messageBean);
+		//更新文章的留言数
+		ArticleBean articleBean = articleDao.findByArticleId(articleId);
+		int count = articleBean.getMessageCount()+1;
+		articleBean.setMessageCount(count);
+		articleDao.save(articleBean);
 	}
 
 	@Override
 	public List<MessageBean> getMessage(Long articleId) {
 		List<MessageBean> messageList = messageDao.findByArticleId(articleId);
-		return null;
+		return messageList;
 	}
 
 }

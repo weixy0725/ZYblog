@@ -1,5 +1,9 @@
 package com.zhiyu.blog.webapi;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,9 +13,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zhiyu.blog.bean.MessageBean;
 import com.zhiyu.blog.service.MessageService;
+import com.zhiyu.blog.util.IpUtil;
 import com.zhiyu.blog.util.JSONResultUtil;
 import com.zhiyu.blog.util.ResultCodeEnum;
 
@@ -54,14 +62,25 @@ public class MessageController {
 	@ApiOperation(value = "获取留言")
 	@GetMapping(value = "/message")
 	private JSONObject getMessage(
-			@ApiParam(name = "articleId", value = "文章编号", required = true, example = "1") @RequestParam(required = true) Long articleId) {	
+			@ApiParam(name = "articleId", value = "文章编号", required = true, example = "1") @RequestParam(required = true) Long articleId) {
+		JSONArray jsonArray = new JSONArray();
 		try {	
-			messageService.getMessage(articleId);
+			List<MessageBean> messageList=messageService.getMessage(articleId);
+			if(null!=messageList) {
+				List<MessageBean> messageBeans = new ArrayList<MessageBean>();
+				Iterator<MessageBean> iterator = messageList.iterator();
+				while(iterator.hasNext()) {
+					MessageBean m = iterator.next();
+					m.setIp(IpUtil.hiddenIP(m.getIp()));
+					messageBeans.add(m);
+				}
+				jsonArray = JSONArray.parseArray(JSON.toJSONString(messageBeans));
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			return JSONResultUtil.failResult(ResultCodeEnum.Exception.getValue(), "", e.getMessage());
 		}
-		return JSONResultUtil.successResult(ResultCodeEnum.Success.getValue(), new JSONObject(), new JSONArray());
+		return JSONResultUtil.successResult(ResultCodeEnum.Success.getValue(), new JSONObject(), jsonArray);
 	}
 
 }

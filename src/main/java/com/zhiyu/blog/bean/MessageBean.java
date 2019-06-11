@@ -9,6 +9,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 import lombok.Data;
 
 /**
@@ -46,6 +48,7 @@ public class MessageBean {
 	 * 留言时间
 	 */
 	@Column(name="datetime")
+	@JSONField(format = "yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime datetime;
 	
 	/**
