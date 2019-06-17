@@ -22,5 +22,14 @@ public class DateFormatUtil {
 
 		return datetime;
 	}
+	
+	public static String DateFormat(String localDateTimeString) {
+		
+		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		
+		LocalDateTime localDateTime = LocalDateTime.parse(localDateTimeString,dateTimeFormatter);
+		
+		return DateFormat(localDateTime);	
+	}
 
 }

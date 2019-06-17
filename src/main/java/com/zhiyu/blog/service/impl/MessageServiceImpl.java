@@ -31,16 +31,25 @@ public class MessageServiceImpl implements MessageService {
 	private ArticleDao articleDao;
 
 	@Override
-	public void saveMessage(Long articleId, String message, Integer type, HttpServletRequest request) throws Exception {
+	public void saveMessage(Long articleId, String message, Integer type,Long id,HttpServletRequest request) throws Exception {
 		MessageBean  messageBean = new MessageBean();
+		MessageBean  m = new MessageBean();
+		if(null!=id) {
+			m=messageDao.getOne(id);
+		}
 		messageBean.setArticleId(articleId);
 		messageBean.setMessage(message);
 		messageBean.setType(type);
 		messageBean.setDatetime(LocalDateTime.now());
 		messageBean.setState(0);
-		String ip = IpUtil.getIpAddr(request);
+		String ip = "";
+		if(null!=m) {
+			ip=m.getIp();
+		}else{
+			ip=IpUtil.getIpAddr(request);
 		if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) { 
 			throw new Exception("您当前无法留言！");
+		}
 		}
 		messageBean.setIp(ip);
 		messageDao.save(messageBean);
@@ -52,9 +61,36 @@ public class MessageServiceImpl implements MessageService {
 	}
 
 	@Override
-	public List<MessageBean> getMessage(Long articleId) {
-		List<MessageBean> messageList = messageDao.findByArticleId(articleId);
+	public List<MessageBean> getMessage(Long articleId,Integer pageIndex,Integer pageSize) {
+		Integer index =(pageIndex-1)*pageSize;
+		List<MessageBean> messageList = messageDao.findByArticleIdAndState(articleId,0,index,pageSize);
 		return messageList;
+	}
+
+	@Override
+	public void updateMessage(Long id,Integer state) {
+		MessageBean messageBean = messageDao.getOne(id);
+		ArticleBean articleBean = articleDao.findByArticleId(messageBean.getArticleId());
+		if(state==0) {
+			articleBean.setMessageCount(articleBean.getMessageCount()+1);
+		}else {
+			articleBean.setMessageCount(articleBean.getMessageCount()-1);
+		}
+		messageBean.setState(state);
+		messageDao.save(messageBean);
+		articleDao.save(articleBean);
+	}
+
+	@Override
+	public List<Object[]> findAll(Integer pageIndex, Integer pageSize) {
+		Integer index =(pageIndex-1)*pageSize;
+		List<Object[]> messageList = messageDao.findAll(index, pageSize);
+		return messageList;
+	}
+	
+	@Override
+	public Integer findAllSize() {
+		return messageDao.findAll().size();
 	}
 
 }

@@ -22,7 +22,7 @@ public interface MessageService {
 	 * @param request
 	 * @throws Exception
 	 */
-	void saveMessage(Long articleId, String message, Integer type, HttpServletRequest request) throws Exception;
+	void saveMessage(Long articleId, String message, Integer type,Long id,HttpServletRequest request) throws Exception;
 
 	/**
 	 * 获取文章下的留言信息
@@ -30,6 +30,28 @@ public interface MessageService {
 	 * @param articleId
 	 * @return 
 	 */
-	List<MessageBean> getMessage(Long articleId);
+	List<MessageBean> getMessage(Long articleId,Integer pageIndex,Integer pageSize);
+	
+	/**
+	 * 变更留言状态
+	 * 
+	 * @param articleId
+	 * @param id
+	 */
+	void updateMessage(Long id,Integer state);
 
+	/**
+	 * 获取留言列表
+	 * 
+	 * @param pageIndex
+	 * @param pageSize
+	 * @return
+	 */
+	List<Object[]> findAll(Integer pageIndex,Integer pageSize);
+	
+	/**
+	 * 获取留言总数
+	 * @return
+	 */
+	Integer findAllSize();
 }

@@ -25,7 +25,7 @@ public class MessageServiceTest {
 	@Test
 	public void Test() throws Exception {
 		
-		messageService.saveMessage(1L, "测试", 1,request);
+		messageService.saveMessage(1L, "测试", 1,1L,request);
 		
 	}
 
