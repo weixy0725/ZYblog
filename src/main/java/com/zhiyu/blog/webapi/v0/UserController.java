@@ -1,4 +1,4 @@
-package com.zhiyu.blog.webapi;
+package com.zhiyu.blog.webapi.v0;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
