@@ -118,7 +118,9 @@ public class ArticleServiceImpl implements ArticleService {
 
 		BooleanBuilder queryCondition = new BooleanBuilder();
 
-		if (null != typeId) {
+		if (null== typeId) {
+			queryCondition.and(article.typeId.ne(2));
+		}else {
 			queryCondition.and(article.typeId.eq(typeId));
 		}
 
