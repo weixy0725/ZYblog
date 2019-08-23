@@ -91,4 +91,10 @@ public class ArticleBean {
 	 */
 	@Column(name="cover")
 	private String cover;
+	
+	/**
+	 * 文章状态
+	 */
+	@Column(name="state")
+	private Integer state;
 }

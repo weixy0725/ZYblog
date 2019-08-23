@@ -24,6 +24,7 @@ import com.zhiyu.blog.bean.QArticleBean;
 import com.zhiyu.blog.bean.QClassificationBean;
 import com.zhiyu.blog.bean.QTypeBean;
 import com.zhiyu.blog.service.ArticleService;
+import com.zhiyu.blog.service.LuceneIndexService;
 import com.zhiyu.blog.util.DateFormatUtil;
 import com.zhiyu.blog.util.JSONResultUtil;
 import com.zhiyu.blog.util.ResultCodeEnum;
@@ -47,6 +48,9 @@ public class ArticleController {
 
 	@Autowired
 	private ArticleService articleService;
+	
+	@Autowired
+	private LuceneIndexService luceneIndexService;
 
 	//private static final log log = logFactory.getlog(ArticleController.class);
 
@@ -59,9 +63,10 @@ public class ArticleController {
 			@ApiParam(name = "classificationId", value = "文章具体分类编号", required = true, example = "1") @RequestParam(required = true) Integer classificationId,
 			@ApiParam(name = "isOriginal", value = "是否原创（0为转载，1为原创，2为练习，3为临摹）", required = true, example = "1") @RequestParam(required = true) Integer isOriginal,
 			@ApiParam(name = "article", value = "文章内容", required = true, example = "1") @RequestParam(required = true) String article,
-			@ApiParam(name = "cover", value = "封面", required = false, example = "1") @RequestParam(required = false) String cover) {
+			@ApiParam(name = "cover", value = "封面", required = false, example = "1") @RequestParam(required = false) String cover,
+			@ApiParam(name = "state", value = "文章状态", required = false, example = "0") @RequestParam(required = false) Integer state) {
 		try {
-			articleService.save(articleName, articleSummarize, typeId, classificationId, isOriginal, article, cover);
+			articleService.save(articleName, articleSummarize, typeId, classificationId, isOriginal, article, cover,state);
 			log.info("存储文章:{}成功！", articleName);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -77,7 +82,7 @@ public class ArticleController {
 		JSONObject object = new JSONObject();
 		try {
 			ArticleBean articleBean = articleService.findByArticleId(articleId);
-			if (null != articleBean) {
+			if (null != articleBean&&articleBean.getState().intValue()==0) {
 				object.put("articleName", articleBean.getArticleName());
 				object.put("articleContent", articleBean.getArticleContent());
 				object.put("articleSummarize", articleBean.getArticleSummarize());
@@ -114,9 +119,55 @@ public class ArticleController {
 		JSONArray array = new JSONArray();
 
 		try {
-			List<Tuple> articles = articleService.findArticlesPaging(typeId, classificationId, pageIndex, pageSize);
+			List<Tuple> articles = articleService.findArticlesPaging(typeId, classificationId, pageIndex, pageSize,null);
 
-			Long count = articleService.findArticlesCount(typeId, classificationId);
+			Long count = articleService.findArticlesCount(typeId, classificationId,null);
+
+			object.put("count", count);
+
+			Iterator<Tuple> iterator = articles.iterator();
+			while (iterator.hasNext()) {
+				Tuple t = iterator.next();
+				JSONObject o = new JSONObject();
+				ArticleBean articleBean = t.get(QArticleBean.articleBean);
+				ClassificationBean classificationBean = t.get(QClassificationBean.classificationBean);
+				TypeBean typeBean = t.get(QTypeBean.typeBean);
+				o.put("articleId", articleBean.getArticleId());
+				o.put("articleName", articleBean.getArticleName());
+				o.put("isOriginal", articleBean.getIsOriginal());
+				o.put("articleSummarize", articleBean.getArticleSummarize());
+				o.put("classificationId", articleBean.getClassificationId());
+				o.put("classification", classificationBean.getClassification());
+				o.put("datetime", DateFormatUtil.DateFormat(articleBean.getDatetime()));
+				o.put("browseTimes", articleBean.getBrowseTimes());
+				o.put("messageCount", articleBean.getMessageCount());
+				o.put("cover", articleBean.getCover() == null ? "" : articleBean.getCover());
+				o.put("typeId", typeBean.getId());
+				o.put("type", typeBean.getArticleType());
+				array.add(o);
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return JSONResultUtil.failResult(ResultCodeEnum.Exception.getValue(), "", e.getMessage());
+		}
+		return JSONResultUtil.successResult(ResultCodeEnum.Success.getValue(), object, array);
+	}
+	
+	@ApiOperation(value = "分页获取所有文章信息", notes = "全局搜索另做")
+	@GetMapping(value = "/blogArticles")
+	public JSONObject getAllArticleInfoByState(
+			@ApiParam(name = "typeId", value = "文章类型编号", required = false, example = "1") @RequestParam(required = false) Integer typeId,
+			@ApiParam(name = "classificationId", value = "文章具体分类编号", required = false, example = "1") @RequestParam(required = false) Integer classificationId,
+			@ApiParam(name = "pageIndex", value = "页码", required = true, example = "1", defaultValue = "1") @RequestParam(defaultValue = "1", required = true) Integer pageIndex,
+			@ApiParam(name = "pageSize", value = "页数据条数", required = true, example = "10", defaultValue = "10") @RequestParam(defaultValue = "10", required = true) Integer pageSize) {
+		JSONObject object = new JSONObject();
+		JSONArray array = new JSONArray();
+
+		try {
+			List<Tuple> articles = articleService.findArticlesPaging(typeId, classificationId, pageIndex, pageSize,0);
+
+			Long count = articleService.findArticlesCount(typeId, classificationId,0);
 
 			object.put("count", count);
 
@@ -276,10 +327,11 @@ public class ArticleController {
 			@ApiParam(name = "classificationId", value = "文章具体分类编号", required = true, example = "1") @RequestParam(required = true) Integer classificationId,
 			@ApiParam(name = "isOriginal", value = "是否原创（0为转载，1为原创，2为练习，3为临摹）", required = true, example = "1") @RequestParam(required = true) Integer isOriginal,
 			@ApiParam(name = "article", value = "文章内容", required = true, example = "1") @RequestParam(required = true) String article,
-			@ApiParam(name = "cover", value = "封面", required = false, example = "1") @RequestParam(required = false) String cover) {
+			@ApiParam(name = "cover", value = "封面", required = false, example = "1") @RequestParam(required = false) String cover,
+			@ApiParam(name = "state", value = "文章状态", required = false, example = "0") @RequestParam(required = false) Integer state) {
 		try {
 			int code = articleService.updateArticle(articleId, articleName, articleSummarize, typeId, classificationId,
-					isOriginal, article, cover);
+					isOriginal, article, cover,state);
 			if (code == ResultCodeEnum.Fail.getValue()) {
 				return JSONResultUtil.failResult(ResultCodeEnum.Fail.getValue(), "更新文章失败，当前文章不存在！", "");
 			}
@@ -336,5 +388,21 @@ public class ArticleController {
 			return JSONResultUtil.failResult(ResultCodeEnum.Exception.getValue(), "", e.getMessage());
 		}
 		return JSONResultUtil.successResult(ResultCodeEnum.Success.getValue(), new JSONObject(), new JSONArray());
+	}
+	
+	@ApiOperation(value = "分页获取全站检索信息")
+	@GetMapping(value = "/searchArticles")
+	public JSONObject searchArticles(
+			@ApiParam(name = "text", value = "查询内容", required = true, example = "1") @RequestParam(required = false) String text,
+			@ApiParam(name = "pageIndex", value = "页码", required = true, example = "1", defaultValue = "1") @RequestParam(defaultValue = "1", required = true) Integer pageIndex,
+			@ApiParam(name = "pageSize", value = "页数据条数", required = true, example = "10", defaultValue = "10") @RequestParam(defaultValue = "10", required = true) Integer pageSize) {
+		JSONObject object = new JSONObject();
+		try {		
+		    object = luceneIndexService.search(text, pageIndex, pageSize);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return JSONResultUtil.failResult(ResultCodeEnum.Exception.getValue(), "", e.getMessage());
+		}
+		return object;
 	}
 }

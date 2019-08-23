@@ -54,9 +54,9 @@ public class RecentController {
 		JSONArray array = new JSONArray();
 
 		try {
-			List<Tuple> articles = articleService.findArticlesPaging(typeId, classificationId, pageIndex, pageSize);
+			List<Tuple> articles = articleService.findArticlesPaging(typeId, classificationId, pageIndex, pageSize,0);
 
-			Long count = articleService.findArticlesCount(typeId, classificationId);
+			Long count = articleService.findArticlesCount(typeId, classificationId,0);
 
 			object.put("count", count);
 

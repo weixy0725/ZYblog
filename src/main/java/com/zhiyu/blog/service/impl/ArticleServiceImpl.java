@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ import com.zhiyu.blog.dao.ClassificationDao;
 import com.zhiyu.blog.dao.ArticleDao;
 import com.zhiyu.blog.dao.TypeDao;
 import com.zhiyu.blog.service.ArticleService;
+import com.zhiyu.blog.service.LuceneIndexService;
 import com.zhiyu.blog.util.ResultCodeEnum;
 import com.zhiyu.blog.util.WatermarkUtil;
 
@@ -48,10 +50,13 @@ public class ArticleServiceImpl implements ArticleService {
 
 	@Autowired
 	private ClassificationDao articleClassificationDao;
+	
+	@Autowired
+	private LuceneIndexService luceneIndexService;
 
 	@Override
 	public void save(String articleName, String articleSummarize, Integer typeId, Integer classificationId,
-			Integer isOriginal, String article, String cover) {
+			Integer isOriginal, String article, String cover,Integer state) throws IOException {
 		ArticleBean articleBean = new ArticleBean();
 		articleBean.setArticleName(articleName);
 		articleBean.setArticleSummarize(articleSummarize);
@@ -62,8 +67,16 @@ public class ArticleServiceImpl implements ArticleService {
 		articleBean.setDatetime(LocalDateTime.now());
 		articleBean.setBrowseTimes(0);
 		articleBean.setMessageCount(0);
-		articleBean.setCover(cover);
-		articleDao.save(articleBean);
+		if(!StringUtils.isEmpty(cover)) {
+			articleBean.setCover(cover);
+		}
+		
+		if(null!=state) {
+			articleBean.setState(state);
+		}
+		articleDao.saveAndFlush(articleBean);
+		
+		luceneIndexService.addIndex(articleBean);
 	}
 
 	@Override
@@ -78,16 +91,21 @@ public class ArticleServiceImpl implements ArticleService {
 
 	@Override
 	public List<Tuple> findArticlesPaging(Integer typeId, Integer classificationId, Integer pageIndex,
-			Integer pageSize) {
-		return articleDao.query(q -> querySQL(q, typeId, classificationId, false).limit(pageSize)
+			Integer pageSize,Integer state) {
+		return articleDao.query(q -> querySQL(q, typeId, classificationId, false,state).limit(pageSize)
 				.offset((pageIndex - 1) * pageSize).fetch());
 	}
 
 	@Override
-	public Long findArticlesCount(Integer typeId, Integer classificationId) {
-		return articleDao.query(q -> querySQL(q, typeId, classificationId, true).fetchCount());
+	public Long findArticlesCount(Integer typeId, Integer classificationId,Integer state) {
+		return articleDao.query(q -> querySQL(q, typeId, classificationId, true,state).fetchCount());
 	}
 
+	@Override
+	public List<Tuple> findArticlesForIndex(){
+		return articleDao.query(q -> querySQL(q)).fetch();
+	}
+	
 	/**
 	 * 构建querydsl查询过程
 	 * 
@@ -96,7 +114,7 @@ public class ArticleServiceImpl implements ArticleService {
 	 * @param classificationId
 	 * @return
 	 */
-	private JPAQuery<Tuple> querySQL(JPAQuery<?> q, Integer typeId, Integer classificationId, Boolean isCount) {
+	private JPAQuery<Tuple> querySQL(JPAQuery<?> q, Integer typeId, Integer classificationId, Boolean isCount,Integer state) {
 
 		QArticleBean article = QArticleBean.articleBean;
 		QClassificationBean classification = QClassificationBean.classificationBean;
@@ -118,7 +136,7 @@ public class ArticleServiceImpl implements ArticleService {
 
 		BooleanBuilder queryCondition = new BooleanBuilder();
 
-		if (null== typeId) {
+		if (null==typeId) {
 			queryCondition.and(article.typeId.ne(2));
 		}else {
 			queryCondition.and(article.typeId.eq(typeId));
@@ -127,8 +145,39 @@ public class ArticleServiceImpl implements ArticleService {
 		if (null != classificationId) {
 			queryCondition.and(article.classificationId.eq(classificationId));
 		}
+		
+		if(null!=state) {
+			queryCondition.and(article.state.eq(state));
+		}
 
 		query.where(queryCondition);
+
+		return query;
+
+	}
+	
+	/**
+	 * 构建querydsl查询过程用于查询所有文章
+	 * 
+	 * @param q
+	 * @return
+	 */
+	private JPAQuery<Tuple> querySQL(JPAQuery<?> q) {
+
+		QArticleBean article = QArticleBean.articleBean;
+		QClassificationBean classification = QClassificationBean.classificationBean;
+		QTypeBean typeBean = QTypeBean.typeBean;
+
+		JPAQuery<Tuple> query = null;
+		
+        query = q.select(article, classification, typeBean).from(article).leftJoin(classification)
+					.on(article.classificationId.eq(classification.id)).leftJoin(typeBean)
+					.on(article.typeId.eq(typeBean.id)).orderBy(article.datetime.desc());
+        
+        BooleanBuilder queryCondition = new BooleanBuilder();
+        queryCondition.and(article.state.eq(0));
+
+		assert query != null;
 
 		return query;
 
@@ -172,13 +221,14 @@ public class ArticleServiceImpl implements ArticleService {
 	}
 
 	@Override
-	public void deleteByArticleId(Long articleId) {
+	public void deleteByArticleId(Long articleId) throws IOException {
 		articleDao.deleteByArticleId(articleId);
+		luceneIndexService.deleteIndex(articleId);
 	}
 
 	@Override
 	public int updateArticle(Long articleId, String articleName, String articleSummarize, Integer typeId,
-			Integer classificationId, Integer isOriginal, String article, String cover) {
+			Integer classificationId, Integer isOriginal, String article, String cover,Integer state) throws IOException {
 		ArticleBean articleBean = articleDao.findByArticleId(articleId);
 		if (null == articleBean) {
 			return ResultCodeEnum.Fail.getValue();
@@ -192,6 +242,24 @@ public class ArticleServiceImpl implements ArticleService {
 			articleBean.setBrowseTimes(0);
 			articleBean.setMessageCount(0);
 			articleBean.setCover(cover);
+			if(null==state) {
+				articleBean.setState(0);
+				//删除旧的索引
+				luceneIndexService.deleteIndex(articleId);
+				//新增新的索引
+				luceneIndexService.addIndex(articleBean);
+			}else {
+				articleBean.setState(state);
+				if(state.intValue()==2) {
+					//删除索引不显示
+					luceneIndexService.deleteIndex(articleId);
+				}else {
+					//删除旧的索引
+					luceneIndexService.deleteIndex(articleId);
+					//新增新的索引
+					luceneIndexService.addIndex(articleBean);
+				}
+			}
 			articleDao.save(articleBean);
 			return ResultCodeEnum.Success.getValue();
 		}

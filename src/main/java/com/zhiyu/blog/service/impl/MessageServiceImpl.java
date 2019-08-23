@@ -33,7 +33,7 @@ public class MessageServiceImpl implements MessageService {
 	@Override
 	public void saveMessage(Long articleId, String message, Integer type,Long id,HttpServletRequest request) throws Exception {
 		MessageBean  messageBean = new MessageBean();
-		MessageBean  m = new MessageBean();
+		MessageBean  m = null;
 		if(null!=id) {
 			m=messageDao.getOne(id);
 		}
@@ -47,10 +47,11 @@ public class MessageServiceImpl implements MessageService {
 			ip=m.getIp();
 		}else{
 			ip=IpUtil.getIpAddr(request);
-		if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) { 
-			throw new Exception("您当前无法留言！");
+			if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) { 
+				throw new Exception("您当前无法留言！");
+			}
 		}
-		}
+		System.out.println(ip);
 		messageBean.setIp(ip);
 		messageDao.save(messageBean);
 		//更新文章的留言数

@@ -23,9 +23,10 @@ public interface ArticleService {
 	 * @param articleName
 	 * @param classificationId
 	 * @param article
+	 * @throws IOException 
 	 */
 	void save(String articleName, String articleSummarize, Integer typeId, Integer classificationId, Integer isOriginal,
-			String article, String cover);
+			String article, String cover,Integer state) throws IOException;
 
 	/**
 	 * 获取文章内容
@@ -66,7 +67,7 @@ public interface ArticleService {
 	 * @param pageSize
 	 * @return
 	 */
-	List<Tuple> findArticlesPaging(Integer typeId, Integer classificationId, Integer pageIndex, Integer pageSize);
+	List<Tuple> findArticlesPaging(Integer typeId, Integer classificationId, Integer pageIndex, Integer pageSize,Integer state);
 
 	/**
 	 * 获取文章总数
@@ -75,7 +76,7 @@ public interface ArticleService {
 	 * @param classificationId
 	 * @return
 	 */
-	Long findArticlesCount(Integer typeId, Integer classificationId);
+	Long findArticlesCount(Integer typeId, Integer classificationId,Integer state);
 
 	/**
 	 * 上传图片
@@ -91,16 +92,18 @@ public interface ArticleService {
 	 * 删除文章
 	 * 
 	 * @param articleId
+	 * @throws IOException 
 	 */
-	public void deleteByArticleId(Long articleId);
+	public void deleteByArticleId(Long articleId) throws IOException;
 	
 	/**
 	 * 更新文章
 	 * 
 	 * @param articleId
+	 * @throws IOException 
 	 */
 	public int updateArticle(Long articleId,String articleName, String articleSummarize, Integer typeId, Integer classificationId, Integer isOriginal,
-			String article, String cover);
+			String article, String cover,Integer state) throws IOException;
 	/**
 	 * 新增文章具体分类
 	 * 
@@ -129,4 +132,10 @@ public interface ArticleService {
 	 * 更新或保存文章实体
 	 */
 	public void save(ArticleBean articelBean);
+	
+	/**
+	 * 查询所有文章相关内容
+	 * @return
+	 */
+	public List<Tuple> findArticlesForIndex();
 }
