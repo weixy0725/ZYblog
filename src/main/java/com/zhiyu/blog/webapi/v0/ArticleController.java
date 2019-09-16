@@ -107,6 +107,39 @@ public class ArticleController {
 		}
 		return JSONResultUtil.successResult(ResultCodeEnum.Success.getValue(), object, new JSONArray());
 	}
+	
+	@ApiOperation(value = "后台获取获取文章")
+	@GetMapping(value = "/articleBack")
+	public JSONObject getArticleBack(
+			@ApiParam(name = "articleId", value = "文章编号", required = true, example = "1") @RequestParam(required = true) Long articleId) {
+		JSONObject object = new JSONObject();
+		try {
+			ArticleBean articleBean = articleService.findByArticleId(articleId);
+			if (null != articleBean) {
+				object.put("articleName", articleBean.getArticleName());
+				object.put("articleContent", articleBean.getArticleContent());
+				object.put("articleSummarize", articleBean.getArticleSummarize());
+				object.put("isOriginal", articleBean.getIsOriginal());
+				object.put("datetime", DateFormatUtil.DateFormat(articleBean.getDatetime()));
+				object.put("browseTimes", articleBean.getBrowseTimes());
+				object.put("cover", articleBean.getCover());
+				object.put("typeId", articleBean.getTypeId());
+				object.put("classificationId", articleBean.getClassificationId());
+				object.put("messageCount", articleBean.getMessageCount());
+				// 留言等待做
+				//浏览次数暂时简单++
+				int count = articleBean.getBrowseTimes().intValue()+1;
+				articleBean.setBrowseTimes(count);
+				articleService.save(articleBean);
+			} else {
+				return JSONResultUtil.failResult(ResultCodeEnum.Fail.getValue(), "当前文章内容不存在！", "");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return JSONResultUtil.failResult(ResultCodeEnum.Exception.getValue(), "", e.getMessage());
+		}
+		return JSONResultUtil.successResult(ResultCodeEnum.Success.getValue(), object, new JSONArray());
+	}
 
 	@ApiOperation(value = "分页获取所有文章信息", notes = "全局搜索另做")
 	@GetMapping(value = "/articles")
@@ -144,6 +177,7 @@ public class ArticleController {
 				o.put("cover", articleBean.getCover() == null ? "" : articleBean.getCover());
 				o.put("typeId", typeBean.getId());
 				o.put("type", typeBean.getArticleType());
+				o.put("state", articleBean.getState());
 				array.add(o);
 			}
 

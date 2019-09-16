@@ -138,7 +138,7 @@ public class ArticleServiceImpl implements ArticleService {
 
 		if (null==typeId) {
 			queryCondition.and(article.typeId.ne(2));
-		}else {
+		}else if(typeId!=0){
 			queryCondition.and(article.typeId.eq(typeId));
 		}
 
@@ -239,8 +239,8 @@ public class ArticleServiceImpl implements ArticleService {
 			articleBean.setClassificationId(classificationId);
 			articleBean.setIsOriginal(isOriginal);
 			articleBean.setArticleContent(article);
-			articleBean.setBrowseTimes(0);
-			articleBean.setMessageCount(0);
+			//articleBean.setBrowseTimes(0);
+			//articleBean.setMessageCount(0);
 			articleBean.setCover(cover);
 			if(null==state) {
 				articleBean.setState(0);
