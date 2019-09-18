@@ -1,7 +1,9 @@
 package com.zhiyu.blog.service;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
+import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 
 import com.zhiyu.blog.bean.MessageBean;
@@ -22,7 +24,7 @@ public interface MessageService {
 	 * @param request
 	 * @throws Exception
 	 */
-	void saveMessage(Long articleId, String message, Integer type,Long id,HttpServletRequest request) throws Exception;
+	void saveMessage(Long articleId, String message, Integer type,Long id,String nickname,String email,HttpServletRequest request) throws Exception;
 
 	/**
 	 * 获取文章下的留言信息
@@ -54,4 +56,18 @@ public interface MessageService {
 	 * @return
 	 */
 	Integer findAllSize();
+	
+	/**
+	 * 发送回复邮件
+	 * @param id
+	 * @return
+	 * @throws UnsupportedEncodingException
+	 * @throws MessagingException
+	 */
+	String  sendMail(Long id) throws UnsupportedEncodingException, MessagingException;
+	
+	/**
+	 * 修改邮件回复状态
+	 */
+	void updateMessage(Integer isSend,Long id);
 }

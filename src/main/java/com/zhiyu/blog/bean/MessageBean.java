@@ -68,4 +68,22 @@ public class MessageBean {
 	 */
 	@Column(name="state")
 	private Integer state;
+	
+	/**
+	 * 昵称
+	 */
+	@Column(name="nickname")
+	private String nickname;
+	
+	/**
+	 * 邮箱
+	 */
+	@Column(name="email")
+	private String email;
+	
+	/**
+	 * 是否已发送回复
+	 */
+	@Column(name="is_send")
+	private Integer isSend;
 }

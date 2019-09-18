@@ -57,9 +57,11 @@ public class MessageController {
 			@ApiParam(name = "message", value = "留言内容", required = true, example = "1") @RequestParam(required = true) String message,
 			@ApiParam(name = "type", value = "0为回复，1为留言", required = true, example = "1") @RequestParam(required = true) Integer type,
 			@ApiParam(name = "id", value = "留言编号", required = false, example = "1") @RequestParam(required = false) Long id,
+			@ApiParam(name = "nickname", value = "留言者昵称", required = false, example = "1") @RequestParam(required = false) String nickname,
+			@ApiParam(name = "email", value = "邮箱", required = false, example = "1") @RequestParam(required = false) String email,
 			HttpServletRequest request) {
 		try {
-			messageService.saveMessage(articleId, message, type, id,request);
+			messageService.saveMessage(articleId, message, type, id,nickname,email,request);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return JSONResultUtil.failResult(ResultCodeEnum.Exception.getValue(), "", e.getMessage());
@@ -132,8 +134,11 @@ public class MessageController {
 					object.put("type", o[4].toString());
 					object.put("ip", o[5].toString());
 					object.put("state", o[6].toString());
-					object.put("articleName", o[7].toString());
-					object.put("articleType", o[8].toString());
+					object.put("nickname", o[7].toString());
+					object.put("email", null==o[8]?"":o[8].toString());
+					object.put("isSend",o[9].toString());
+					object.put("articleName",o[10].toString());
+					object.put("articleType", o[11].toString());
 					jsonArray.add(object);
 				}
 				jsonObject.put("count", count);
@@ -143,6 +148,27 @@ public class MessageController {
 			return JSONResultUtil.failResult(ResultCodeEnum.Exception.getValue(), "", e.getMessage());
 		}
 		return JSONResultUtil.successResult(ResultCodeEnum.Success.getValue(), jsonObject, jsonArray);
+	}
+	
+	@ApiOperation(value = "回复的留言邮件通知")
+	@PostMapping(value = "/sendMail")
+	private JSONObject sendMail(
+			@ApiParam(name = "id", value = "留言编号", required = true, example = "1") @RequestParam(required = true) Long id) {
+		try {
+			String result=messageService.sendMail(id);
+			if(null!=result) {
+				messageService.updateMessage(2, id);
+				return JSONResultUtil.failResult(ResultCodeEnum.Exception.getValue(), result, "");
+				
+			}else {
+				messageService.updateMessage(1, id);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			messageService.updateMessage(2, id);
+			return JSONResultUtil.failResult(ResultCodeEnum.Exception.getValue(), "发送回复通知邮件失败！", e.getMessage());
+		}
+		return JSONResultUtil.successResult(ResultCodeEnum.Success.getValue(), new JSONObject(), new JSONArray());
 	}
 
 }
