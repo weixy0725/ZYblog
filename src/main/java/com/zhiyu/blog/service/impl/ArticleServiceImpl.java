@@ -301,4 +301,5 @@ public class ArticleServiceImpl implements ArticleService {
 	public void save(ArticleBean articelBean) {
 		articleDao.save(articelBean);
 	}
+
 }

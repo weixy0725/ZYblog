@@ -31,5 +31,17 @@ public class DateFormatUtil {
 		
 		return DateFormat(localDateTime);	
 	}
+	
+	public static String DateFormatOnlyDate(LocalDateTime localDateTime) {
+
+		String datetime = "";
+
+		if (null != localDateTime) {
+
+			datetime = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+		}
+
+		return datetime;
+	}
 
 }

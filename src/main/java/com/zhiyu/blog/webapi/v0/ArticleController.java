@@ -439,4 +439,41 @@ public class ArticleController {
 		}
 		return object;
 	}
+	
+	@ApiOperation(value = "获取所有文章信息生成归档时间线", notes = "")
+	@GetMapping(value = "/blogAllArticles")
+	public JSONObject getAllBlogArticleInfoByState() {
+		JSONObject object = new JSONObject();
+		JSONArray array = new JSONArray();
+
+		try {
+			List<Tuple> articles = articleService.findArticlesForIndex();
+			Iterator<Tuple> iterator = articles.iterator();
+			while (iterator.hasNext()) {
+				Tuple t = iterator.next();
+				JSONObject o = new JSONObject();
+				ArticleBean articleBean = t.get(QArticleBean.articleBean);
+				ClassificationBean classificationBean = t.get(QClassificationBean.classificationBean);
+				TypeBean typeBean = t.get(QTypeBean.typeBean);
+				o.put("articleId", articleBean.getArticleId());
+				o.put("articleName", articleBean.getArticleName());
+				o.put("isOriginal", articleBean.getIsOriginal());
+				o.put("articleSummarize", articleBean.getArticleSummarize());
+				o.put("classificationId", articleBean.getClassificationId());
+				o.put("classification", classificationBean.getClassification());
+				o.put("datetime", DateFormatUtil.DateFormatOnlyDate(articleBean.getDatetime()));
+				o.put("browseTimes", articleBean.getBrowseTimes());
+				o.put("messageCount", articleBean.getMessageCount());
+				o.put("cover", articleBean.getCover() == null ? "" : articleBean.getCover());
+				o.put("typeId", typeBean.getId());
+				o.put("type", typeBean.getArticleType());
+				array.add(o);
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return JSONResultUtil.failResult(ResultCodeEnum.Exception.getValue(), "", e.getMessage());
+		}
+		return JSONResultUtil.successResult(ResultCodeEnum.Success.getValue(), object, array);
+	}
 }

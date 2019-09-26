@@ -138,4 +138,6 @@ public interface ArticleService {
 	 * @return
 	 */
 	public List<Tuple> findArticlesForIndex();
+	
+
 }
